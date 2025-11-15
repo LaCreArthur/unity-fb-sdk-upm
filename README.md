@@ -45,26 +45,26 @@ A UPM-compatible fork of the official [Meta Facebook SDK for Unity v18.0.0](http
 Refresh Package Manager.
 
 ### Manual (Git Clone)
-git clone https://github.com/LaCreArthur/facebook-unity-sdk-upm.git Packages/com.facebook.unity-sdk.
-Refresh Assets.
+- git clone https://github.com/LaCreArthur/facebook-unity-sdk-upm.git Packages/com.facebook.unity-sdk.
+- Refresh Assets.
 
 ### Post-install
 Assets > External Dependency Manager > Android Resolver > Force Resolve (Android/iOS deps).
 
 ### Quick Setup
 **Meta App:**
-developers.facebook.com/apps > Create App (Gaming) > Add Android/iOS platforms.
-Copy App ID/Client Token.
+- developers.facebook.com/apps > Create App (Gaming) > Add Android/iOS platforms.
+- Copy App ID/Client Token.
 
 **Unity Settings:**
-Facebook > Edit Settings > Enter App ID, App Name, Client Token.
-Android: Package Name matches Player Settings (e.g., com.sorolla.test).
-Generate Key Hashes (requires JDK/OpenSSL in PATH—see Troubleshooting).
+- Facebook > Edit Settings > Enter App ID, App Name, Client Token.
+- Android: Package Name matches Player Settings (e.g., com.sorolla.test).
+- Generate Key Hashes (requires JDK/OpenSSL in PATH—see Troubleshooting).
 
 **Player Settings (Android):**
-Package Name: e.g., com.sorolla.test.
-Min API 21, Target 34, IL2CPP, ARM64.
-Publishing: Custom Main Manifest (auto-merges FB activities).
+- Package Name: e.g., com.sorolla.test.
+- Min API 21, Target 34, IL2CPP, ARM64.
+- Publishing: Custom Main Manifest (auto-merges FB activities).
 
 **Test Script** (Attach to GameObject):
 ```csharp
@@ -88,9 +88,9 @@ public class FBTest : MonoBehaviour
 ```
 
 **Build & Test:**
-Build APK > Install on device.
-Logcat: adb logcat | grep Facebook—expect "Init Success."
-Meta Events Manager > Test Events: fb_mobile_activate_app appears.
+- Build APK > Install on device.
+- Logcat: adb logcat | grep Facebook—expect "Init Success."
+- Meta Events Manager > Test Events: fb_mobile_activate_app appears.
 
 ## Usage
 
