@@ -29,21 +29,12 @@ public class FBLinkCopier
         {
             File.Copy(upmLink, assetsLink, true);
             AssetDatabase.ImportAsset(assetsLink);
-            Debug.Log("FB UPM: Copied link.xml to Assets/Facebook/—IL2CPP stripping fixed. Forcing Resolver.");
+            Debug.Log("FB UPM: Copied link.xml to Assets/Facebook/—IL2CPP stripping fixed.");
             TriggerResolvers();
         }
         else if (!File.Exists(upmLink))
         {
-            Debug.LogWarning("FB UPM: link.xml missing from UPM package—IL2CPP stripping may occur.");
+            Debug.LogWarning("FB UPM: link.xml missing from UPM package, IL2CPP stripping may occur.");
         }
-
-        // Optional: Trigger EDM for deps (if XML parse needed)
-        TriggerResolvers();
-    }
-
-    private static void TriggerResolvers()
-    {
-        var resolverType = Type.GetType("Google.JarResolver.AndroidResolver, Google.JarResolver");
-        resolverType?.GetMethod("ForceResolve", BindingFlags.Static | BindingFlags.Public)?.Invoke(null, null);
     }
 }
