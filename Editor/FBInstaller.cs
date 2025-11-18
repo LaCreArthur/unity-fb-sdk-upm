@@ -11,7 +11,7 @@ namespace Facebook.Unity.Editor
     {
         static FBInstaller()
         {
-            Debug.Log("<b>[FB Installer]</b> Initializing...");
+            FBLog.Log("<b>[FB Installer]</b> Initializing...");
             // 1. Fix Environment (Runs immediately)
             FixBuildEnvironment();
 
@@ -21,7 +21,7 @@ namespace Facebook.Unity.Editor
 
         private static void RunDelayedChecks()
         {
-            Debug.Log("<b>[FB Installer]</b> Running delayed checks...");
+            FBLog.Log("<b>[FB Installer]</b> Running delayed checks...");
             ConfigureEDM();
             CreateFacebookSettings();
         }
@@ -31,7 +31,7 @@ namespace Facebook.Unity.Editor
         // ---------------------------------------------------------
         private static void FixBuildEnvironment()
         {
-            Debug.Log("<b>[FB Installer]</b> Fixing build environment...");
+            FBLog.Log("<b>[FB Installer]</b> Fixing build environment...");
             // A. Ensure Directory Structure Exists (Fixes 'DirectoryNotFoundException')
             string[] requiredDirs =
             {
@@ -42,7 +42,7 @@ namespace Facebook.Unity.Editor
             foreach (var dir in requiredDirs)
                 if (!Directory.Exists(dir))
                 {
-                    Debug.Log($"<b>[FB Installer]</b> Creating required directory: {dir}");
+                    FBLog.Log($"<b>[FB Installer]</b> Creating required directory: {dir}");
                     Directory.CreateDirectory(dir);
                 }
 
@@ -58,12 +58,12 @@ namespace Facebook.Unity.Editor
                 if (currentJavaHome != unityJdk)
                 {
                     Environment.SetEnvironmentVariable("JAVA_HOME", unityJdk);
-                    Debug.Log($"<b>[FB Installer]</b> Set JAVA_HOME to: {unityJdk}");
+                    FBLog.Log($"<b>[FB Installer]</b> Set JAVA_HOME to: {unityJdk}");
                 }
             }
             else
             {
-                Debug.LogWarning("[FB Installer] Could not find Unity's JDK path. JAVA_HOME not set.");
+                FBLog.LogWarning("[FB Installer] Could not find Unity's JDK path. JAVA_HOME not set.");
             }
         }
 
@@ -71,12 +71,12 @@ namespace Facebook.Unity.Editor
         private static string GetUnityJDKPath()
         {
             var jdkPath = "";
-            Debug.Log("<b>[FB Installer]</b> Searching for Unity JDK path...");
+            FBLog.Log("<b>[FB Installer]</b> Searching for Unity JDK path...");
 
             // 1. Try Unity API (Reflection avoids compile errors if Android Module is missing)
             try
             {
-                Debug.Log("<b>[FB Installer]</b> Trying Unity API for JDK path...");
+                FBLog.Log("<b>[FB Installer]</b> Trying Unity API for JDK path...");
                 var settingsType =
                     Type.GetType("UnityEditor.Android.AndroidExternalToolsSettings, UnityEditor.Android.Extensions");
                 if (settingsType != null)
@@ -85,31 +85,31 @@ namespace Facebook.Unity.Editor
                     if (jdkProp != null)
                     {
                         jdkPath = (string)jdkProp.GetValue(null);
-                        Debug.Log($"<b>[FB Installer]</b> Found JDK path via API: {jdkPath}");
+                        FBLog.Log($"<b>[FB Installer]</b> Found JDK path via API: {jdkPath}");
                     }
                 }
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"[FB Installer] Unity API for JDK path failed: {e.Message}");
+                FBLog.LogWarning($"[FB Installer] Unity API for JDK path failed: {e.Message}");
             }
 
             // 2. Universal Fallback (If API returns null/empty, commonly happens on fresh load)
             // EditorApplication.applicationContentsPath works on both Mac (.../Contents) and Win (.../Data)
             if (string.IsNullOrEmpty(jdkPath))
             {
-                Debug.Log("<b>[FB Installer]</b> JDK path not found via API, trying fallback...");
+                FBLog.Log("<b>[FB Installer]</b> JDK path not found via API, trying fallback...");
                 var contentsPath = EditorApplication.applicationContentsPath;
                 var potentialPath = Path.Combine(contentsPath, "PlaybackEngines", "AndroidPlayer", "OpenJDK");
 
                 if (Directory.Exists(potentialPath))
                 {
                     jdkPath = potentialPath;
-                    Debug.Log($"<b>[FB Installer]</b> Found JDK path via fallback: {jdkPath}");
+                    FBLog.Log($"<b>[FB Installer]</b> Found JDK path via fallback: {jdkPath}");
                 }
                 else
                 {
-                    Debug.LogWarning($"[FB Installer] Fallback JDK path not found at: {potentialPath}");
+                    FBLog.LogWarning($"[FB Installer] Fallback JDK path not found at: {potentialPath}");
                 }
             }
 
@@ -121,23 +121,23 @@ namespace Facebook.Unity.Editor
         // ---------------------------------------------------------
         private static void ConfigureEDM()
         {
-            Debug.Log("<b>[FB Installer]</b> Configuring Google EDM settings via reflection...");
+            FBLog.Log("<b>[FB Installer]</b> Configuring Google EDM settings via reflection...");
             // Tries to find Google's settings class (works for EDM 1.2.x versions)
             var settingsType = Type.GetType("Google.Android.Resolver.AndroidResolverSettings, Google.JarResolver");
             if (settingsType == null)
             {
-                Debug.Log(
+                FBLog.Log(
                     "[FB Installer] Could not find 'Google.Android.Resolver.AndroidResolverSettings', trying fallback...");
                 settingsType = Type.GetType("GooglePlayServices.SettingsDialog, Google.JarResolver");
             }
 
             if (settingsType == null)
             {
-                Debug.LogWarning("[FB Installer] Could not find any EDM settings type. Configuration skipped.");
+                FBLog.LogWarning("[FB Installer] Could not find any EDM settings type. Configuration skipped.");
                 return;
             }
 
-            Debug.Log($"<b>[FB Installer]</b> Found EDM settings type: {settingsType.FullName}");
+            FBLog.Log($"<b>[FB Installer]</b> Found EDM settings type: {settingsType.FullName}");
 
             try
             {
@@ -148,16 +148,16 @@ namespace Facebook.Unity.Editor
                 // Sometimes it's an instance property, sometimes static depending on version
                 if (useJavaHome != null)
                 {
-                    Debug.Log("[FB Installer] Found 'UseJavaHome' as a static property.");
+                    FBLog.Log("[FB Installer] Found 'UseJavaHome' as a static property.");
                     if ((bool)useJavaHome.GetValue(null))
                     {
                         useJavaHome.SetValue(null, false);
-                        Debug.Log("<b>[FB Installer]</b> Disabled 'Use JAVA_HOME' in EDM.");
+                        FBLog.Log("<b>[FB Installer]</b> Disabled 'Use JAVA_HOME' in EDM.");
                     }
                 }
                 else
                 {
-                    Debug.Log(
+                    FBLog.Log(
                         "[FB Installer] 'UseJavaHome' not found as a static property, trying instance approach...");
                     // Try Instance approach
                     var instanceProp = settingsType.GetProperty("Instance", BindingFlags.Static | BindingFlags.Public);
@@ -168,19 +168,19 @@ namespace Facebook.Unity.Editor
                         if (useJavaHome != null && (bool)useJavaHome.GetValue(instance))
                         {
                             useJavaHome.SetValue(instance, false);
-                            Debug.Log("<b>[FB Installer]</b> Disabled 'Use JAVA_HOME' in EDM (Instance).");
+                            FBLog.Log("<b>[FB Installer]</b> Disabled 'Use JAVA_HOME' in EDM (Instance).");
                         }
                     }
                     else
                     {
-                        Debug.LogWarning(
+                        FBLog.LogWarning(
                             "[FB Installer] Could not find 'Instance' property on EDM settings. Configuration failed.");
                     }
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError($"[FB Installer] Failed to configure EDM: {e.Message}");
+                FBLog.LogError($"[FB Installer] Failed to configure EDM: {e.Message}");
             }
         }
 
@@ -190,10 +190,10 @@ namespace Facebook.Unity.Editor
         private static void CreateFacebookSettings()
         {
             var path = "Assets/Resources/FacebookSettings.asset";
-            Debug.Log($"<b>[FB Installer]</b> Checking for FacebookSettings asset at: {path}");
+            FBLog.Log($"<b>[FB Installer]</b> Checking for FacebookSettings asset at: {path}");
             if (File.Exists(path))
             {
-                Debug.Log("<b>[FB Installer]</b> FacebookSettings.asset already exists.");
+                FBLog.Log("<b>[FB Installer]</b> FacebookSettings.asset already exists.");
                 return;
             }
 
@@ -201,7 +201,7 @@ namespace Facebook.Unity.Editor
             var fbSettingsType = Type.GetType("Facebook.Unity.Settings.FacebookSettings, Facebook.Unity.Settings");
             if (fbSettingsType == null)
             {
-                Debug.Log(
+                FBLog.Log(
                     "[FB Installer] Could not find 'Facebook.Unity.Settings.FacebookSettings', trying fallback...");
                 fbSettingsType = Type.GetType("Facebook.Unity.Settings.FacebookSettings");
             }
@@ -209,13 +209,13 @@ namespace Facebook.Unity.Editor
 
             if (fbSettingsType != null)
             {
-                Debug.Log($"<b>[FB Installer]</b> Found FacebookSettings type: {fbSettingsType.FullName}");
+                FBLog.Log($"<b>[FB Installer]</b> Found FacebookSettings type: {fbSettingsType.FullName}");
                 // Ensure only one exists
                 if (AssetDatabase.LoadAssetAtPath(path, fbSettingsType) == null)
                 {
                     var settings = ScriptableObject.CreateInstance(fbSettingsType);
                     AssetDatabase.CreateAsset(settings, path);
-                    Debug.Log("<b>[FB Installer]</b> Created writable FacebookSettings.asset in Assets/Resources/");
+                    FBLog.Log("<b>[FB Installer]</b> Created writable FacebookSettings.asset in Assets/Resources/");
 
                     // Select it so the user sees it immediately
                     Selection.activeObject = settings;
@@ -223,7 +223,7 @@ namespace Facebook.Unity.Editor
             }
             else
             {
-                Debug.LogWarning("[FB Installer] Could not find FacebookSettings type. Asset creation skipped.");
+                FBLog.LogWarning("[FB Installer] Could not find FacebookSettings type. Asset creation skipped.");
             }
         }
     }
