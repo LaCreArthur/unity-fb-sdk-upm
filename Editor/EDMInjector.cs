@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using Newtonsoft.Json.Linq;
 
 namespace Facebook.Unity.Editor
 {
@@ -24,27 +25,20 @@ namespace Facebook.Unity.Editor
             try
             {
                 var jsonText = File.ReadAllText(manifestPath);
-                // Simple string check is faster and dependency-free
-                if (!jsonText.Contains(EDM_PACKAGE_ID))
+                var manifest = JObject.Parse(jsonText);
+                var dependencies = manifest["dependencies"] as JObject;
+
+                if (dependencies != null && !dependencies.ContainsKey(EDM_PACKAGE_ID))
                 {
                     FBLog.Log("<b>[FB Installer]</b> Injecting Google EDM to manifest.json...");
-
-                    // Find the "dependencies" block start
-                    var depIndex = jsonText.IndexOf("\"dependencies\": {", StringComparison.Ordinal);
-                    if (depIndex != -1)
-                    {
-                        // Insert our package at the top of the dependencies list
-                        var insertion = $"\n    \"{EDM_PACKAGE_ID}\": \"{EDM_GIT_URL}\",";
-                        var newJson = jsonText.Insert(depIndex + 17, insertion);
-
-                        File.WriteAllText(manifestPath, newJson);
-                        FBLog.Log("<b>[FB Installer]</b> Successfully injected EDM. Forcing AssetDatabase refresh.");
-                        AssetDatabase.Refresh(); // Force Unity to resolve
-                    }
-                    else
-                    {
-                        FBLog.LogWarning("[FB Installer] Could not find 'dependencies' block in manifest.json.");
-                    }
+                    dependencies.Add(EDM_PACKAGE_ID, EDM_GIT_URL);
+                    File.WriteAllText(manifestPath, manifest.ToString());
+                    FBLog.Log("<b>[FB Installer]</b> Successfully injected EDM. Forcing AssetDatabase refresh.");
+                    AssetDatabase.Refresh(); // Force Unity to resolve
+                }
+                else if (dependencies == null)
+                {
+                    FBLog.LogWarning("[FB Installer] Could not find 'dependencies' block in manifest.json.");
                 }
                 else
                 {
