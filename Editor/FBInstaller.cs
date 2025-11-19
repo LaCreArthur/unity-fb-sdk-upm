@@ -24,6 +24,48 @@ namespace Facebook.Unity.Editor
             FBLog.Log("<b>[FB Installer]</b> Running delayed checks...");
             ConfigureEDM();
             CreateFacebookSettings();
+            CopyLinkXml();
+        }
+
+        // ---------------------------------------------------------
+        // 4. COPY LINK.XML TO ASSETS
+        // ---------------------------------------------------------
+        private static void CopyLinkXml()
+        {
+            try
+            {
+                var linkXmlPath = Path.Combine(Application.dataPath, "Facebook", "link.xml");
+                if (File.Exists(linkXmlPath))
+                {
+                    FBLog.Log("<b>[FB Installer]</b> link.xml already exists in Assets/Facebook/.");
+                    return;
+                }
+
+                // Ensure directory exists
+                var directory = Path.GetDirectoryName(linkXmlPath);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                // Source path in package
+                var sourcePath = Path.GetFullPath("Packages/com.lacrearthur.facebook-sdk-for-unity/link.xml");
+                
+                if (File.Exists(sourcePath))
+                {
+                    File.Copy(sourcePath, linkXmlPath);
+                    FBLog.Log("<b>[FB Installer]</b> Copied link.xml to Assets/Facebook/.");
+                    AssetDatabase.Refresh();
+                }
+                else
+                {
+                    FBLog.LogWarning($"[FB Installer] Could not find link.xml in package at: {sourcePath}");
+                }
+            }
+            catch (Exception e)
+            {
+                FBLog.LogError($"[FB Installer] Failed to copy link.xml: {e.Message}");
+            }
         }
 
         // ---------------------------------------------------------
