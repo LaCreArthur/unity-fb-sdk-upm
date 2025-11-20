@@ -1,7 +1,7 @@
 # Facebook SDK for Unity (UPM Fork) v18.0.0
 
 [![GitHub stars](https://img.shields.io/github/stars/LaCreArthur/facebook-unity-sdk-upm?style=social)](https://github.com/LaCreArthur/facebook-unity-sdk-upm/stargazers)
-[![OpenUPM](https://img.shields.io/npm/v/com.lacrearthur.facebook-sdk-for-unity?label=OpenUPM&registry=https%3A%2F%2Fpackage.openupm.com)](https://openupm.com/packages/com.lacrearthur.facebook-sdk-for-unity/)
+[![openupm](https://img.shields.io/npm/v/com.lacrearthur.facebook-sdk-for-unity?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.lacrearthur.facebook-sdk-for-unity/)
 
 A **fixed and modernized** UPM-compatible fork of the official [Meta Facebook SDK for Unity v18.0.0](https://developers.facebook.com/docs/unity/downloads).
 
