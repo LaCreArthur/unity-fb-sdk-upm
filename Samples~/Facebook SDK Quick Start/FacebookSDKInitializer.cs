@@ -21,14 +21,6 @@ public sealed class FacebookSDKInitializer : MonoBehaviour
 
     private void Awake()
     {
-        // Prevent duplicate initializers (safety if user adds prefab twice)
-        var existing = FindObjectsByType<FacebookSDKInitializer>(FindObjectsSortMode.None);
-        if (existing.Length > 1)
-        {
-            if (existing[0] != this) Destroy(gameObject);
-            return;
-        }
-
         DontDestroyOnLoad(gameObject);
 
         // Ensure Facebook DLL is loadable (helps catch IL2CPP stripping early)
